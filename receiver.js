@@ -4,7 +4,7 @@
 const amqp = require('amqplib');
 const settings = require('./util/settings');
 const log = require('./util/log');
-
+let channelglobal;
 /**
  * Callback function for message, received from
  * binded queue(s)
@@ -17,7 +17,7 @@ function onMessage(message) {
     log.info(`Received '${msg}'`);
     setTimeout(() => {
       log.info('Done');
-      // channel.ack(msg);
+      channelglobal.ack(message);
     }, timeout);
   }
 }
@@ -25,9 +25,8 @@ function onMessage(message) {
 (async function listen() {
   try {
     const connection = await amqp.connect(settings.amqp.uri);
-    const channel = await connection.createChannel()
-    const queue = "task_queue"
-    const q = await channel.assertQueue(queue, {
+     channelglobal = await connection.createChannel()
+    const q = await channelglobal.assertQueue(settings.amqp.queue, {
       durable: true
     });
     /*
@@ -38,14 +37,14 @@ function onMessage(message) {
     const q = await channel.assertQueue('', { exclusive: true });
     await channel.bindQueue(q.queue, settings.amqp.exchange, '');
     */
-    // channel.prefetch(1);
+    channelglobal.prefetch(1);
 
     log.info(
       `Waiting for messages from [${settings.amqp.exchange || ''}/${q.queue}]. To exit press CTRL+C`,
       '*'
     );
 
-    channel.consume(q.queue, onMessage, { noAck: false });
+    channelglobal.consume(q.queue, onMessage, { noAck: false });
   } catch (err) {
     console.error(err);
   }

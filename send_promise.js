@@ -9,7 +9,6 @@ const args = require('./util/args');
 function send(message = 'Hello from Promise! I did the tutorial') {
   let connection;
   let channel;
-  let nameQ = "task_queue"
   amqp
     .connect(settings.amqp.uri)
     .then((con) => {
@@ -18,10 +17,9 @@ function send(message = 'Hello from Promise! I did the tutorial') {
     })
     .then((chan) => {
       channel = chan;
-      let nameQ = "task_queue"
-      return channel.assertQueue(nameQ, { durable: true });
+      return channel.assertQueue(settings.amqp.queue, { durable: true });
     })
-    .then(() => channel.sendToQueue(nameQ, Buffer.from(message)), {persistent: true})
+    .then(() => channel.sendToQueue(settings.amqp.queue, Buffer.from(message)), {persistent: true})
     .then((isSent) => {
       if (isSent) {
         log.info(`Sent '${message}' to ${settings.amqp.queueInfo}`);
