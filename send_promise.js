@@ -17,9 +17,11 @@ function send(message = 'Hello from Promise! I did the tutorial') {
     })
     .then((chan) => {
       channel = chan;
-      return channel.assertQueue(settings.amqp.queue, { durable: true });
+      // return channel.assertQueue(settings.amqp.queue, { durable: true });
+      return channel.assertExchange(settings.amqp.exchange, 'fanout', { durable: false });
     })
-    .then(() => channel.sendToQueue(settings.amqp.queue, Buffer.from(message)), {persistent: true})
+    // .then(() => channel.sendToQueue(settings.amqp.queue, Buffer.from(message)), {persistent: true})
+    .then(() => channel.publish(settings.amqp.exchange, '', Buffer.from(message)))
     .then((isSent) => {
       if (isSent) {
         log.info(`Sent '${message}' to ${settings.amqp.queueInfo}`);

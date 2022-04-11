@@ -26,17 +26,17 @@ function onMessage(message) {
   try {
     const connection = await amqp.connect(settings.amqp.uri);
      channelglobal = await connection.createChannel()
-    const q = await channelglobal.assertQueue(settings.amqp.queue, {
-      durable: true
-    });
-    /*
-    // code for later exchange tutorial
-    await channel.assertExchange(settings.amqp.exchange, 'fanout', {
+    // const q = await channelglobal.assertQueue(settings.amqp.queue, {
+    //   durable: true
+    // });
+
+     // code for later exchange tutorial
+   await channelglobal.assertExchange(settings.amqp.exchange, 'fanout', {
       durable: false,
     });
-    const q = await channel.assertQueue('', { exclusive: true });
-    await channel.bindQueue(q.queue, settings.amqp.exchange, '');
-    */
+    const q = await channelglobal.assertQueue('', { exclusive: true });
+    await channelglobal.bindQueue(q.queue, settings.amqp.exchange, '');
+
     channelglobal.prefetch(1);
 
     log.info(
